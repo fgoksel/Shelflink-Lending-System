@@ -1,0 +1,79 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "15672:15672"   # management UI: http://localhost:15672 (guest / guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth:
+    build: ./services/auth
+    environment:
+      - JWT_SECRET=dev-secret-change-me
+      - DB_PATH=/data/auth.db
+    volumes:
+      - auth-data:/data
+
+  catalog:
+    build: ./services/catalog
+    environment:
+      - DB_PATH=/data/catalog.db
+    volumes:
+      - catalog-data:/data
+
+  loans:
+    build: ./services/loans
+    environment:
+      - JWT_SECRET=dev-secret-change-me
+      - CATALOG_URL=http://catalog:3002
+      - RABBITMQ_URL=amqp://rabbitmq
+      - DB_PATH=/data/loans.db
+    volumes:
+      - loans-data:/data
+    depends_on:
+      - catalog
+      - rabbitmq
+
+  notifications:
+    build: ./services/notifications
+    environment:
+      - JWT_SECRET=dev-secret-change-me
+      - RABBITMQ_URL=amqp://rabbitmq
+      - DB_PATH=/data/notifications.db
+    volumes:
+      - notifications-data:/data
+    depends_on:
+      - rabbitmq
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "3000:3000"     # optional: lets you call the API directly with curl
+    environment:
+      - AUTH_URL=http://auth:3001
+      - CATALOG_URL=http://catalog:3002
+      - LOANS_URL=http://loans:3003
+      - NOTIFICATIONS_URL=http://notifications:3004
+    depends_on:
+      - auth
+      - catalog
+      - loans
+      - notifications
+
+  web:
+    build: ./web
+    ports:
+      - "8090:8080"     # open http://localhost:8080 in your browser
+    environment:
+      - GATEWAY_URL=http://gateway:3000
+    depends_on:
+      - gateway
+
+volumes:
+  auth-data:
+  catalog-data:
+  loans-data:
+  notifications-data:
