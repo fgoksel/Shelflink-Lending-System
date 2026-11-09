@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShelfLink</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">S</span> ShelfLink</div>
+  <div id="user-chip" class="user-chip" hidden>
+    <span id="user-name"></span>
+    <button id="logout-btn" class="btn btn-ghost">Log out</button>
+  </div>
+</header>
+
+<main>
+  <section id="auth-view" class="card auth-card">
+    <h1>Welcome to ShelfLink</h1>
+    <p class="muted">Sign in to borrow books. New here? Create an account first.</p>
+    <form id="auth-form" autocomplete="on">
+      <label>Username
+        <input id="username" name="username" required autocomplete="username">
+      </label>
+      <label>Password
+        <input id="password" name="password" type="password" required autocomplete="current-password">
+      </label>
+      <div class="row">
+        <button type="submit" class="btn btn-primary" data-mode="login">Log in</button>
+        <button type="submit" class="btn" data-mode="register">Create account</button>
+      </div>
+      <p id="auth-error" class="error" role="alert" hidden></p>
+    </form>
+  </section>
+
+  <div id="app-view" hidden>
+    <div class="layout">
+      <section class="card">
+        <div class="card-head">
+          <h2>Catalog</h2>
+          <input id="search" type="search" placeholder="Search title or author" aria-label="Search books">
+        </div>
+        <div id="books" class="books"></div>
+      </section>
+
+      <aside class="side">
+        <section class="card">
+          <h2>My loans</h2>
+          <div id="loans"></div>
+        </section>
+        <section class="card">
+          <h2>Notifications <span class="live">live</span></h2>
+          <ul id="notifications" class="notes"></ul>
+          <p class="muted small">Delivered by notification-service through RabbitMQ.</p>
+        </section>
+      </aside>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Request trace</h2>
+        <button id="clear-log" class="btn btn-ghost">Clear</button>
+      </div>
+      <p class="muted small">Every call this page makes goes browser &rarr; web &rarr; gateway &rarr; service.</p>
+      <ul id="trace" class="trace"></ul>
+    </section>
+  </div>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
