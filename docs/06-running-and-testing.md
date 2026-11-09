@@ -31,6 +31,18 @@ flowchart TD
 
 Loans and notifications retry their RabbitMQ connection every 3 seconds for up to 10 attempts, so it is normal to see a few "RabbitMQ not ready" lines at startup.
 
+### Using a different port
+
+The docs use `http://localhost:8080` for the web client. If that port is already taken on your machine, change the **left** number of the `web` port mapping in `docker-compose.yml`. The right number is the port inside the container and must stay `8080`.
+
+```yaml
+  web:
+    ports:
+      - "8090:8080"   # your PC : container
+```
+
+Then run `docker compose down` and `docker compose up --build`, and open `http://localhost:8090` instead. Every `8080` address in this document changes the same way. The same applies to the gateway (`3000`) and the RabbitMQ dashboard (`15672`).
+
 ## Stop
 
 Press `Ctrl+C` in the compose window, then:
@@ -94,7 +106,7 @@ flowchart LR
 | `docker` is not recognized | Terminal opened before Docker was installed | Open a new terminal, or restart the PC |
 | Cannot connect to the Docker daemon | Docker Desktop not running | Start it and wait for the whale icon to settle |
 | `no configuration file provided` | Wrong folder | `cd` into the folder that contains `docker-compose.yml` |
-| Port already in use | Another program on 8080, 3000 or 15672 | Stop it, or change the left side of the port mapping in `docker-compose.yml` |
+| Port already in use (`ports are not available`) | Another program on 8080, 3000 or 15672 | Stop it, or change the left side of the port mapping in `docker-compose.yml` (see [Using a different port](#using-a-different-port)). Find the culprit with `netstat -ano \| findstr :8080` |
 | Page loads but lists nothing, console shows 404 | Old image cached | `docker compose up --build` again |
 | Borrow returns 503 | Catalog container not running | `docker compose start catalog` |
 | Notifications never appear | Notification-service could not reach RabbitMQ | Check its logs for "consuming events" |
